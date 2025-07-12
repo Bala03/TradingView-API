@@ -21,6 +21,10 @@ Join the Telegram group of the TradingView-API Community: [t.me/tradingview_api]
 
 ## Features
 
+- [x] **Enhanced API Integration**: Global session management, robust error handling, and comprehensive market data access
+- [x] **Production-Ready**: Automatic retry logic, rate limiting, and zero-error data fetching
+- [x] **Multi-Market Support**: Access to 6 major markets (America, Europe, Asia, Australia, Canada, India)
+- [x] **Unlimited Data Access**: Pagination support for fetching any dataset size without API limits
 - [x] Premium features
 - [x] Automatically backtest many strategies and try many settings in a very little time
 - [x] Get drawings you made on your chart
@@ -64,6 +68,14 @@ npm i github:Mathieu2301/TradingView-API
 ## Examples
 
 You can find all the examples and snippets in `./examples` folder.
+
+### 🚀 New Enhanced API Examples
+
+- **Global Session Management**: Centralized credential management across all operations
+- **Comprehensive Market Data**: Multi-market data fetching with advanced filtering
+- **Error Handling Demo**: Robust retry logic and error recovery examples
+
+See `docs/ENHANCED_API.md` for detailed documentation on the new enhanced features.
 
 ## Before opening an issue
 
