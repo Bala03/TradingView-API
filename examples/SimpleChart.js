@@ -1,63 +1,80 @@
 const TradingView = require('../main');
 
 /**
- * This example creates a BTCEUR daily chart
+ * This example creates a BTCEUR daily chart using the streamlined approach
+ * It demonstrates the new configuration system and helper functions
  */
 
-const client = new TradingView.Client(); // Creates a websocket client
+async function main() {
+  try {
+    // Get or create a session automatically
+    const session = await TradingView.sessionManager.getSession();
+    console.log(`✅ Authenticated as: ${session.username}`);
 
-const chart = new client.Session.Chart(); // Init a Chart session
+    // Create a websocket client
+    const client = new TradingView.Client();
 
-chart.setMarket('BINANCE:BTCEUR', { // Set the market
-  timeframe: 'D',
+    // Create a chart using helpers with default configuration
+    const chart = TradingView.helpers.createChart(client, {
+      market: 'BINANCE:BTCEUR',
+      timeframe: 'D'
+    });
+
+    // Setup chart handlers using helpers
+    TradingView.helpers.setupChartHandlers(chart, {
+      onError: true,
+      onSymbolLoaded: true,
+      onUpdate: true,
+      onReady: false
+    });
+
+    // Wait 5 seconds and set the market to BINANCE:ETHEUR
+    await TradingView.helpers.delay(5000);
+    console.log('\n🔄 Setting market to BINANCE:ETHEUR...');
+    chart.setMarket('BINANCE:ETHEUR', {
+      timeframe: 'D',
+    });
+
+    // Wait 10 seconds and set the timeframe to 15 minutes
+    await TradingView.helpers.delay(5000);
+    console.log('\n🔄 Setting timeframe to 15 minutes...');
+    chart.setSeries('15');
+
+    // Wait 15 seconds and set the chart type to "Heikin Ashi"
+    await TradingView.helpers.delay(5000);
+    console.log('\n🔄 Setting the chart type to "Heikin Ashi"...');
+    chart.setMarket('BINANCE:ETHEUR', {
+      timeframe: 'D',
+      type: 'HeikinAshi',
+    });
+
+    // Wait 20 seconds and close the chart
+    await TradingView.helpers.delay(5000);
+    console.log('\n🗑️ Closing the chart...');
+    chart.delete();
+
+    // Wait 25 seconds and close the client
+    await TradingView.helpers.delay(5000);
+    console.log('\n🔌 Closing the client...');
+    client.end();
+
+    console.log('\n✅ Example completed successfully!');
+
+  } catch (error) {
+    console.error('❌ Example failed:', error.message);
+    process.exit(1);
+  }
+}
+
+// Handle process termination
+process.on('SIGINT', () => {
+  console.log('\n🛑 Received SIGINT, shutting down gracefully...');
+  process.exit(0);
 });
 
-chart.onError((...err) => { // Listen for errors (can avoid crash)
-  console.error('Chart error:', ...err);
-  // Do something...
-});
+// Run the example
+if (require.main === module) {
+  main().catch(console.error);
+}
 
-chart.onSymbolLoaded(() => { // When the symbol is successfully loaded
-  console.log(`Market "${chart.infos.description}" loaded !`);
-});
-
-chart.onUpdate(() => { // When price changes
-  if (!chart.periods[0]) return;
-  console.log(`[${chart.infos.description}]: ${chart.periods[0].close} ${chart.infos.currency_id}`);
-  // Do something...
-});
-
-// Wait 5 seconds and set the market to BINANCE:ETHEUR
-setTimeout(() => {
-  console.log('\nSetting market to BINANCE:ETHEUR...');
-  chart.setMarket('BINANCE:ETHEUR', {
-    timeframe: 'D',
-  });
-}, 5000);
-
-// Wait 10 seconds and set the timeframe to 15 minutes
-setTimeout(() => {
-  console.log('\nSetting timeframe to 15 minutes...');
-  chart.setSeries('15');
-}, 10000);
-
-// Wait 15 seconds and set the chart type to "Heikin Ashi"
-setTimeout(() => {
-  console.log('\nSetting the chart type to "Heikin Ashi"s...');
-  chart.setMarket('BINANCE:ETHEUR', {
-    timeframe: 'D',
-    type: 'HeikinAshi',
-  });
-}, 15000);
-
-// Wait 20 seconds and close the chart
-setTimeout(() => {
-  console.log('\nClosing the chart...');
-  chart.delete();
-}, 20000);
-
-// Wait 25 seconds and close the client
-setTimeout(() => {
-  console.log('\nClosing the client...');
-  client.end();
-}, 25000);
+module.exports = main;

@@ -5,8 +5,14 @@
   "main": "main.js",
   "scripts": {
     "test": "vitest",
-    "example": "node --env-file=.env",
-    "example:dev": "nodemon --env-file=.env"
+    "example": "node --env-file=.env examples/StreamlinedExample.js",
+    "example:dev": "nodemon --env-file=.env examples/StreamlinedExample.js",
+    "example:simple": "node --env-file=.env examples/SimpleChart.js",
+    "example:login": "node --env-file=.env examples/UserLogin.js",
+    "example:all": "node --env-file=.env examples/StreamlinedExample.js && node --env-file=.env examples/SimpleChart.js",
+    "config:test": "node -e \"console.log(require('./src/config').all)\"",
+    "session:test": "node -e \"require('./src/sessionManager').getSession().then(console.log).catch(console.error)\"",
+    "setup": "cp .env.example .env && echo 'Please edit .env file with your TradingView credentials'"
   },
   "repository": {
     "type": "git",
