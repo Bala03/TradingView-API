@@ -1,0 +1,44 @@
+{
+  "name": "TradingView Webhook -> Log",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tradingview",
+        "requireSecret": true,
+        "secretSource": "header",
+        "secretHeader": "x-tradingview-secret",
+        "secretValue": "replace-with-your-secret",
+        "response": "ok"
+      },
+      "id": "TradingView Trigger",
+      "name": "TradingView Trigger",
+      "type": "n8n-nodes-tradingview.tradingViewTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "message": "={{$json.body}}"
+      },
+      "id": "Logger",
+      "name": "Log Alert JSON",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [520, 300]
+    }
+  ],
+  "connections": {
+    "TradingView Trigger": {
+      "main": [
+        [
+          {
+            "node": "Log Alert JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
+
