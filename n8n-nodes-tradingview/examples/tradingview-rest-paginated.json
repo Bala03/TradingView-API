@@ -1,0 +1,34 @@
+{
+  "name": "TradingView REST (Paginated)",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "rawRequest",
+        "operation": "get",
+        "endpoint": "/markets",
+        "pagination": true,
+        "offsetParam": "offset",
+        "limitParam": "limit",
+        "limitPerPage": 100,
+        "maxItems": 500,
+        "dataPropertyName": "items",
+        "additionalOptions": {
+          "timeoutMs": 30000
+        }
+      },
+      "id": "TradingView",
+      "name": "TradingView",
+      "type": "n8n-nodes-tradingview.tradingView",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {
+        "tradingViewApi": {
+          "id": "replace-with-credential-id",
+          "name": "TradingView API"
+        }
+      }
+    }
+  ],
+  "connections": {}
+}
+
