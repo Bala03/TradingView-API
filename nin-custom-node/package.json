@@ -1,0 +1,17 @@
+{
+  "name": "n8n-nodes-tradingview",
+  "version": "0.1.0",
+  "description": "n8n node for TradingView API",
+  "main": "TradingView.node.js",
+  "n8n": {
+    "credentials": [
+      "TradingView.credentials.js"
+    ],
+    "nodes": [
+      "TradingView.node.js"
+    ]
+  },
+  "dependencies": {
+    "@mathieuc/tradingview": "file:.."
+  }
+}
