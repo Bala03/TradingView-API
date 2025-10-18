@@ -17,8 +17,10 @@ module.exports = {
    * @returns {TWPacket[]} TradingView packets
    */
   parseWSPacket(str) {
-    return str.replace(cleanerRgx, '').split(splitterRgx)
-      .map((p) => {
+    return str
+      .replace(cleanerRgx, '')
+      .split(splitterRgx)
+      .map(p => {
         if (!p) return false;
         try {
           return JSON.parse(p);
@@ -27,7 +29,7 @@ module.exports = {
           return false;
         }
       })
-      .filter((p) => p);
+      .filter(p => p);
   },
 
   /**
@@ -37,9 +39,7 @@ module.exports = {
    * @returns {string} Websocket raw data
    */
   formatWSPacket(packet) {
-    const msg = typeof packet === 'object'
-      ? JSON.stringify(packet)
-      : packet;
+    const msg = typeof packet === 'object' ? JSON.stringify(packet) : packet;
     return `~m~${msg.length}~m~${msg}`;
   },
 
@@ -52,9 +52,9 @@ module.exports = {
   async parseCompressed(data) {
     const zip = new JSZip();
     return JSON.parse(
-      await (
-        await zip.loadAsync(data, { base64: true })
-      ).file('').async('text'),
+      await (await zip.loadAsync(data, { base64: true }))
+        .file('')
+        .async('text'),
     );
   },
 };

@@ -12,11 +12,11 @@ class TradingViewHelpers {
    */
   static createChart(client, options = {}) {
     const chart = new client.Session.Chart();
-    
+
     const chartOptions = {
       timeframe: options.timeframe || config.market.timeframe,
       type: options.type || config.market.chartType,
-      ...options
+      ...options,
     };
 
     // Set default market if none specified
@@ -39,7 +39,7 @@ class TradingViewHelpers {
       onError = true,
       onSymbolLoaded = true,
       onUpdate = true,
-      onReady = true
+      onReady = true,
     } = options;
 
     if (onError) {
@@ -58,7 +58,9 @@ class TradingViewHelpers {
       chart.onUpdate(() => {
         if (!chart.periods[0]) return;
         const period = chart.periods[0];
-        console.log(`📈 [${chart.infos.description}]: ${period.close} ${chart.infos.currency_id}`);
+        console.log(
+          `📈 [${chart.infos.description}]: ${period.close} ${chart.infos.currency_id}`,
+        );
       });
     }
 
@@ -85,24 +87,30 @@ class TradingViewHelpers {
    * @param {number} delayMs - Delay between retries in milliseconds
    * @returns {Promise} Promise that resolves with the function result
    */
-  static async retry(fn, maxRetries = config.connection.maxRetries, delayMs = 1000) {
+  static async retry(
+    fn,
+    maxRetries = config.connection.maxRetries,
+    delayMs = 1000,
+  ) {
     let lastError;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         return await fn();
       } catch (error) {
         lastError = error;
         console.warn(`⚠️  Attempt ${attempt} failed: ${error.message}`);
-        
+
         if (attempt < maxRetries) {
           console.log(`🔄 Retrying in ${delayMs}ms...`);
           await this.delay(delayMs);
         }
       }
     }
-    
-    throw new Error(`Failed after ${maxRetries} attempts. Last error: ${lastError.message}`);
+
+    throw new Error(
+      `Failed after ${maxRetries} attempts. Last error: ${lastError.message}`,
+    );
   }
 
   /**
@@ -115,14 +123,14 @@ class TradingViewHelpers {
     const { open, high, low, close, volume } = period;
     const change = close - open;
     const changePercent = ((change / open) * 100).toFixed(2);
-    
+
     return {
       price: close,
       change: change.toFixed(4),
       changePercent: `${changePercent}%`,
       range: `${low} - ${high}`,
       volume: volume ? volume.toLocaleString() : 'N/A',
-      currency
+      currency,
     };
   }
 
@@ -134,11 +142,11 @@ class TradingViewHelpers {
   static isValidMarketSymbol(symbol) {
     // Basic validation for common market formats
     const patterns = [
-      /^[A-Z]+:[A-Z]+$/,           // EXCHANGE:SYMBOL
-      /^[A-Z]+:[A-Z]+[0-9]*$/,     // EXCHANGE:SYMBOL123
-      /^[A-Z]+:[A-Z]+[A-Z0-9]*$/   // EXCHANGE:SYMBOL123
+      /^[A-Z]+:[A-Z]+$/, // EXCHANGE:SYMBOL
+      /^[A-Z]+:[A-Z]+[0-9]*$/, // EXCHANGE:SYMBOL123
+      /^[A-Z]+:[A-Z]+[A-Z0-9]*$/, // EXCHANGE:SYMBOL123
     ];
-    
+
     return patterns.some(pattern => pattern.test(symbol));
   }
 
@@ -148,15 +156,15 @@ class TradingViewHelpers {
    */
   static getTimeframes() {
     return {
-      '1': '1 minute',
-      '5': '5 minutes',
-      '15': '15 minutes',
-      '30': '30 minutes',
-      '60': '1 hour',
-      '240': '4 hours',
+      1: '1 minute',
+      5: '5 minutes',
+      15: '15 minutes',
+      30: '30 minutes',
+      60: '1 hour',
+      240: '4 hours',
       '1D': '1 day',
       '1W': '1 week',
-      '1M': '1 month'
+      '1M': '1 month',
     };
   }
 
@@ -166,13 +174,13 @@ class TradingViewHelpers {
    */
   static getChartTypes() {
     return {
-      'Bars': 'Bars',
-      'Candles': 'Candles',
-      'HollowCandles': 'Hollow Candles',
-      'HeikinAshi': 'Heikin Ashi',
-      'Line': 'Line',
-      'Area': 'Area',
-      'Baseline': 'Baseline'
+      Bars: 'Bars',
+      Candles: 'Candles',
+      HollowCandles: 'Hollow Candles',
+      HeikinAshi: 'Heikin Ashi',
+      Line: 'Line',
+      Area: 'Area',
+      Baseline: 'Baseline',
     };
   }
 

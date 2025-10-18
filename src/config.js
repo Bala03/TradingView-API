@@ -15,10 +15,14 @@ class Config {
   validateConfig() {
     const required = ['TRADINGVIEW_USERNAME', 'TRADINGVIEW_PASSWORD'];
     const missing = required.filter(key => !process.env[key]);
-    
+
     if (missing.length > 0) {
-      console.warn(`⚠️  Missing required environment variables: ${missing.join(', ')}`);
-      console.warn('Please check your .env file or set these variables in your environment');
+      console.warn(
+        `⚠️  Missing required environment variables: ${missing.join(', ')}`,
+      );
+      console.warn(
+        'Please check your .env file or set these variables in your environment',
+      );
     }
   }
 
@@ -32,7 +36,7 @@ class Config {
       sessionId: process.env.TRADINGVIEW_SESSION_ID,
       signature: process.env.TRADINGVIEW_SIGNATURE,
       userAgent: process.env.TRADINGVIEW_USER_AGENT || 'TWAPI/3.0',
-      rememberSession: process.env.TRADINGVIEW_REMEMBER_SESSION !== 'false'
+      rememberSession: process.env.TRADINGVIEW_REMEMBER_SESSION !== 'false',
     };
   }
 
@@ -43,7 +47,7 @@ class Config {
     return {
       default: process.env.DEFAULT_MARKET || 'BINANCE:BTCEUR',
       timeframe: process.env.DEFAULT_TIMEFRAME || 'D',
-      chartType: process.env.DEFAULT_CHART_TYPE || 'HeikinAshi'
+      chartType: process.env.DEFAULT_CHART_TYPE || 'HeikinAshi',
     };
   }
 
@@ -54,7 +58,7 @@ class Config {
     return {
       websocketTimeout: parseInt(process.env.WEBSOCKET_TIMEOUT) || 30000,
       requestTimeout: parseInt(process.env.REQUEST_TIMEOUT) || 10000,
-      maxRetries: parseInt(process.env.MAX_RETRIES) || 3
+      maxRetries: parseInt(process.env.MAX_RETRIES) || 3,
     };
   }
 
@@ -64,7 +68,7 @@ class Config {
   get logging() {
     return {
       level: process.env.LOG_LEVEL || 'info',
-      debug: process.env.ENABLE_DEBUG === 'true'
+      debug: process.env.ENABLE_DEBUG === 'true',
     };
   }
 
@@ -92,7 +96,7 @@ class Config {
       connection: this.connection,
       logging: this.logging,
       isAuthenticated: this.isAuthenticated,
-      hasSession: this.hasSession
+      hasSession: this.hasSession,
     };
   }
 }

@@ -1,0 +1,144 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linter
+      run: npm run lint:check
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Run unit tests specifically
+      run: npx vitest run tests/helpers.test.ts tests/utils.test.ts --reporter=verbose
+      
+    - name: Check test coverage
+      run: npx vitest run --coverage --reporter=verbose
+      
+    - name: Build project (if applicable)
+      run: |
+        if [ -f "package.json" ] && grep -q "build" package.json; then
+          npm run build
+        else
+          echo "No build script found, skipping build step"
+        fi
+        
+    - name: Verify package integrity
+      run: npm pack --dry-run
+      
+    - name: Security audit
+      run: npm audit --audit-level=moderate
+
+  style:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Check code formatting
+      run: |
+        if [ -f ".prettierrc.js" ] || [ -f ".prettierrc" ]; then
+          npx prettier --check "./src/**/*.{js,ts,jsx,tsx}" "./tests/**/*.{js,ts,jsx,tsx}"
+        else
+          echo "No Prettier config found, skipping format check"
+        fi
+        
+    - name: Run ESLint
+      run: |
+        if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ]; then
+          npm run lint:check
+        else
+          echo "No ESLint config found, skipping lint check"
+        fi
+
+  examples:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Test examples (if environment variables are available)
+      run: |
+        if [ -f ".env.example" ]; then
+          echo "Environment variables required for examples. Copy .env.example to .env and populate with valid credentials."
+          echo "Skipping example tests in CI due to required credentials."
+        else
+          echo "No .env.example found, skipping example tests"
+        fi
+      continue-on-error: true
+
+  performance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Performance benchmark
+      run: |
+        echo "Running basic performance checks..."
+        node -e "console.time('package-load'); require('./package.json'); console.timeEnd('package-load');"
+        node -e "console.time('main-load'); require('./main.js'); console.timeEnd('main-load');"
+        
+    - name: Bundle size analysis (if applicable)
+      run: |
+        if [ -f "package.json" ] && grep -q "build" package.json; then
+          echo "Build script found - bundle size analysis could be added here"
+        else
+          echo "No build script found, skipping bundle size analysis"
+        fi

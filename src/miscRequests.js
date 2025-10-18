@@ -4,7 +4,7 @@ const axios = require('axios');
 const PineIndicator = require('./classes/PineIndicator');
 const { genAuthCookies } = require('./utils');
 
-const validateStatus = (status) => status < 500;
+const validateStatus = status => status < 500;
 
 const indicators = ['Recommend.Other', 'Recommend.All', 'Recommend.MA'];
 const builtInIndicList = [];
@@ -56,7 +56,7 @@ module.exports = {
     const advice = {};
 
     const cols = ['1', '5', '15', '60', '240', '1D', '1W', '1M']
-      .map((t) => indicators.map((i) => (t !== '1D' ? `${i}|${t}` : i)))
+      .map(t => indicators.map(i => (t !== '1D' ? `${i}|${t}` : i)))
       .flat();
 
     const rs = await fetchScanData([id], cols);
@@ -109,7 +109,7 @@ module.exports = {
       },
     );
 
-    return data.map((s) => {
+    return data.map(s => {
       const exchange = s.exchange.split(' ')[0];
       const id = `${exchange}:${s.symbol}`;
 
@@ -142,10 +142,7 @@ module.exports = {
       'https://symbol-search.tradingview.com/symbol_search/v3',
       {
         params: {
-          exchange: (splittedSearch.length === 2
-            ? splittedSearch[0]
-            : undefined
-          ),
+          exchange: splittedSearch.length === 2 ? splittedSearch[0] : undefined,
           text: splittedSearch.pop(),
           search_type: filter,
         },
@@ -158,9 +155,11 @@ module.exports = {
 
     const { data } = request;
 
-    return data.symbols.map((s) => {
+    return data.symbols.map(s => {
       const exchange = s.exchange.split(' ')[0];
-      const id = s.prefix ? `${s.prefix}:${s.symbol}` : `${exchange.toUpperCase()}:${s.symbol}`;
+      const id = s.prefix
+        ? `${s.prefix}:${s.symbol}`
+        : `${exchange.toUpperCase()}:${s.symbol}`;
 
       return {
         id,
@@ -196,18 +195,20 @@ module.exports = {
    */
   async searchIndicator(search = '') {
     if (!builtInIndicList.length) {
-      await Promise.all(['standard', 'candlestick', 'fundamental'].map(async (type) => {
-        const { data } = await axios.get(
-          'https://pine-facade.tradingview.com/pine-facade/list',
-          {
-            params: {
-              filter: type,
+      await Promise.all(
+        ['standard', 'candlestick', 'fundamental'].map(async type => {
+          const { data } = await axios.get(
+            'https://pine-facade.tradingview.com/pine-facade/list',
+            {
+              params: {
+                filter: type,
+              },
+              validateStatus,
             },
-            validateStatus,
-          },
-        );
-        builtInIndicList.push(...data);
-      }));
+          );
+          builtInIndicList.push(...data);
+        }),
+      );
     }
 
     const { data } = await axios.get(
@@ -225,27 +226,30 @@ module.exports = {
     }
 
     return [
-      ...builtInIndicList.filter((i) => (
-        norm(i.scriptName).includes(norm(search))
-        || norm(i.extra.shortDescription).includes(norm(search))
-      )).map((ind) => ({
-        id: ind.scriptIdPart,
-        version: ind.version,
-        name: ind.scriptName,
-        author: {
-          id: ind.userId,
-          username: '@TRADINGVIEW@',
-        },
-        image: '',
-        access: 'closed_source',
-        source: '',
-        type: (ind.extra && ind.extra.kind) ? ind.extra.kind : 'study',
-        get() {
-          return module.exports.getIndicator(ind.scriptIdPart, ind.version);
-        },
-      })),
+      ...builtInIndicList
+        .filter(
+          i =>
+            norm(i.scriptName).includes(norm(search)) ||
+            norm(i.extra.shortDescription).includes(norm(search)),
+        )
+        .map(ind => ({
+          id: ind.scriptIdPart,
+          version: ind.version,
+          name: ind.scriptName,
+          author: {
+            id: ind.userId,
+            username: '@TRADINGVIEW@',
+          },
+          image: '',
+          access: 'closed_source',
+          source: '',
+          type: ind.extra && ind.extra.kind ? ind.extra.kind : 'study',
+          get() {
+            return module.exports.getIndicator(ind.scriptIdPart, ind.version);
+          },
+        })),
 
-      ...data.results.map((ind) => ({
+      ...data.results.map(ind => ({
         id: ind.scriptIdPart,
         version: ind.version,
         name: ind.scriptName,
@@ -254,9 +258,11 @@ module.exports = {
           username: ind.author.username,
         },
         image: ind.imageUrl,
-        access: ['open_source', 'closed_source', 'invite_only'][ind.access - 1] || 'other',
+        access:
+          ['open_source', 'closed_source', 'invite_only'][ind.access - 1] ||
+          'other',
         source: ind.scriptSource,
-        type: (ind.extra && ind.extra.kind) ? ind.extra.kind : 'study',
+        type: ind.extra && ind.extra.kind ? ind.extra.kind : 'study',
         get() {
           return module.exports.getIndicator(ind.scriptIdPart, ind.version);
         },
@@ -286,16 +292,22 @@ module.exports = {
       },
     );
 
-    if (!data.success || !data.result.metaInfo || !data.result.metaInfo.inputs) {
+    if (
+      !data.success ||
+      !data.result.metaInfo ||
+      !data.result.metaInfo.inputs
+    ) {
       throw new Error(`Inexistent or unsupported indicator: "${data.reason}"`);
     }
 
     const inputs = {};
 
-    data.result.metaInfo.inputs.forEach((input) => {
+    data.result.metaInfo.inputs.forEach(input => {
       if (['text', 'pineId', 'pineVersion'].includes(input.id)) return;
 
-      const inlineName = input.name.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+      const inlineName = input.name
+        .replace(/ /g, '_')
+        .replace(/[^a-zA-Z0-9_]/g, '');
 
       inputs[input.id] = {
         name: input.name,
@@ -314,12 +326,8 @@ module.exports = {
 
     const plots = {};
 
-    Object.keys(data.result.metaInfo.styles).forEach((plotId) => {
-      const plotTitle = data
-        .result
-        .metaInfo
-        .styles[plotId]
-        .title
+    Object.keys(data.result.metaInfo.styles).forEach(plotId => {
+      const plotTitle = data.result.metaInfo.styles[plotId].title
         .replace(/ /g, '_')
         .replace(/[^a-zA-Z0-9_]/g, '');
 
@@ -332,7 +340,7 @@ module.exports = {
       } else plots[plotId] = plotTitle;
     });
 
-    data.result.metaInfo.plots.forEach((plot) => {
+    data.result.metaInfo.plots.forEach(plot => {
       if (!plot.target) return;
       plots[plot.id] = `${plots[plot.target] ?? plot.target}_${plot.type}`;
     });
@@ -395,10 +403,10 @@ module.exports = {
 
     if (data.error) throw new Error(data.error);
 
-    const sessionCookie = cookies.find((c) => c.includes('sessionid='));
+    const sessionCookie = cookies.find(c => c.includes('sessionid='));
     const session = (sessionCookie.match(/sessionid=(.*?);/) ?? [])[1];
 
-    const signCookie = cookies.find((c) => c.includes('sessionid_sign='));
+    const signCookie = cookies.find(c => c.includes('sessionid_sign='));
     const signature = (signCookie.match(/sessionid_sign=(.*?);/) ?? [])[1];
 
     return {
@@ -427,7 +435,11 @@ module.exports = {
    * @param {string} [location] Auth page location (For france: https://fr.tradingview.com/)
    * @returns {Promise<User>} Token
    */
-  async getUser(session, signature = '', location = 'https://www.tradingview.com/') {
+  async getUser(
+    session,
+    signature = '',
+    location = 'https://www.tradingview.com/',
+  ) {
     const { data, headers } = await axios.get(location, {
       headers: {
         cookie: genAuthCookies(session, signature),
@@ -446,8 +458,14 @@ module.exports = {
         following: parseFloat(/,"following":([0-9]*?),/.exec(data)?.[1] || 0),
         followers: parseFloat(/,"followers":([0-9]*?),/.exec(data)?.[1] || 0),
         notifications: {
-          following: parseFloat(/"notification_count":\{"following":([0-9]*),/.exec(data)?.[1] ?? 0),
-          user: parseFloat(/"notification_count":\{"following":[0-9]*,"user":([0-9]*)/.exec(data)?.[1] ?? 0),
+          following: parseFloat(
+            /"notification_count":\{"following":([0-9]*),/.exec(data)?.[1] ?? 0,
+          ),
+          user: parseFloat(
+            /"notification_count":\{"following":[0-9]*,"user":([0-9]*)/.exec(
+              data,
+            )?.[1] ?? 0,
+          ),
         },
         session,
         signature,
@@ -486,7 +504,7 @@ module.exports = {
       },
     );
 
-    return data.map((ind) => ({
+    return data.map(ind => ({
       id: ind.scriptIdPart,
       version: ind.version,
       name: ind.scriptName,
@@ -497,7 +515,7 @@ module.exports = {
       image: ind.imageUrl,
       access: 'private',
       source: ind.scriptSource,
-      type: (ind.extra && ind.extra.kind) ? ind.extra.kind : 'study',
+      type: ind.extra && ind.extra.kind ? ind.extra.kind : 'study',
       get() {
         return module.exports.getIndicator(
           ind.scriptIdPart,
@@ -525,11 +543,10 @@ module.exports = {
    * @returns {Promise<string>} Token
    */
   async getChartToken(layout, credentials = {}) {
-    const { id, session, signature } = (
+    const { id, session, signature } =
       credentials.id && credentials.session
         ? credentials
-        : { id: -1, session: null, signature: null }
-    );
+        : { id: -1, session: null, signature: null };
 
     const { data } = await axios.get(
       'https://www.tradingview.com/chart-token',
@@ -581,7 +598,12 @@ module.exports = {
    * @param {number} [chartID] Chart ID
    * @returns {Promise<Drawing[]>} Drawings
    */
-  async getDrawings(layout, symbol = '', credentials = {}, chartID = '_shared') {
+  async getDrawings(
+    layout,
+    symbol = '',
+    credentials = {},
+    chartID = '_shared',
+  ) {
     const chartToken = await module.exports.getChartToken(layout, credentials);
 
     const { data } = await axios.get(
@@ -598,10 +620,12 @@ module.exports = {
       },
     );
 
-    if (!data.payload) throw new Error('Wrong layout, user credentials, or chart id.');
+    if (!data.payload)
+      throw new Error('Wrong layout, user credentials, or chart id.');
 
-    return Object.values(data.payload.sources || {}).map((drawing) => ({
-      ...drawing, ...drawing.state,
+    return Object.values(data.payload.sources || {}).map(drawing => ({
+      ...drawing,
+      ...drawing.state,
     }));
   },
 };
