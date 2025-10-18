@@ -120,16 +120,26 @@ module.exports = class BuiltInIndicator {
       return;
     }
 
-    if (defaultValues[this.#type] && defaultValues[this.#type][key] !== undefined) {
+    if (
+      defaultValues[this.#type] &&
+      defaultValues[this.#type][key] !== undefined
+    ) {
       const requiredType = typeof defaultValues[this.#type][key];
       const valType = typeof value;
       if (requiredType !== valType) {
-        throw new Error(`Wrong '${key}' value type '${valType}' (must be '${requiredType}')`);
+        throw new Error(
+          `Wrong '${key}' value type '${valType}' (must be '${requiredType}')`,
+        );
       }
     }
 
-    if (defaultValues[this.#type] && defaultValues[this.#type][key] === undefined) {
-      throw new Error(`Option '${key}' is denied with '${this.#type}' indicator`);
+    if (
+      defaultValues[this.#type] &&
+      defaultValues[this.#type][key] === undefined
+    ) {
+      throw new Error(
+        `Option '${key}' is denied with '${this.#type}' indicator`,
+      );
     }
 
     this.#options[key] = value;

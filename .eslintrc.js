@@ -6,12 +6,14 @@ module.exports = {
   },
   extends: [
     'airbnb-base',
+    'prettier',
   ],
   parser: '@babel/eslint-parser',
   parserOptions: {
     ecmaVersion: 12,
     requireConfigFile: false,
   },
+  plugins: ['prettier'],
   rules: {
     'no-console': 'off',
     'import/no-extraneous-dependencies': [
@@ -24,5 +26,10 @@ module.exports = {
     'no-await-in-loop': 'off',
     'no-continue': 'off',
     'guard-for-in': 'off',
+    'prettier/prettier': 'error',
+    'indent': ['error', 2],
+    'quotes': ['error', 'single'],
+    'comma-dangle': ['error', 'always-multiline'],
+    'semi': ['error', 'always'],
   },
 };

@@ -207,7 +207,7 @@ const TRANSLATOR = {
 module.exports = function graphicParse(rawGraphic = {}, indexes = []) {
   // console.log('indexes', indexes);
   return {
-    labels: Object.values(rawGraphic.dwglabels ?? {}).map((l) => ({
+    labels: Object.values(rawGraphic.dwglabels ?? {}).map(l => ({
       id: l.id,
       x: indexes[l.x],
       y: l.y,
@@ -221,7 +221,7 @@ module.exports = function graphicParse(rawGraphic = {}, indexes = []) {
       toolTip: l.tt,
     })),
 
-    lines: Object.values(rawGraphic.dwglines ?? {}).map((l) => ({
+    lines: Object.values(rawGraphic.dwglines ?? {}).map(l => ({
       id: l.id,
       x1: indexes[l.x1],
       y1: l.y1,
@@ -233,7 +233,7 @@ module.exports = function graphicParse(rawGraphic = {}, indexes = []) {
       width: l.w,
     })),
 
-    boxes: Object.values(rawGraphic.dwgboxes ?? {}).map((b) => ({
+    boxes: Object.values(rawGraphic.dwgboxes ?? {}).map(b => ({
       id: b.id,
       x1: indexes[b.x1],
       y1: b.y1,
@@ -252,7 +252,7 @@ module.exports = function graphicParse(rawGraphic = {}, indexes = []) {
       textWrap: b.tw,
     })),
 
-    tables: Object.values(rawGraphic.dwgtables ?? {}).map((t) => ({
+    tables: Object.values(rawGraphic.dwgtables ?? {}).map(t => ({
       id: t.id,
       position: t.pos,
       rows: t.rows,
@@ -264,7 +264,7 @@ module.exports = function graphicParse(rawGraphic = {}, indexes = []) {
       borderWidth: t.brdw,
       cells: () => {
         const matrix = [];
-        Object.values(rawGraphic.dwgtablecells ?? {}).forEach((cell) => {
+        Object.values(rawGraphic.dwgtablecells ?? {}).forEach(cell => {
           if (cell.tid !== t.id) return;
           if (!matrix[cell.row]) matrix[cell.row] = [];
           matrix[cell.row][cell.col] = {
@@ -283,21 +283,21 @@ module.exports = function graphicParse(rawGraphic = {}, indexes = []) {
       },
     })),
 
-    horizLines: Object.values(rawGraphic.horizlines ?? {}).map((h) => ({
+    horizLines: Object.values(rawGraphic.horizlines ?? {}).map(h => ({
       ...h,
       startIndex: indexes[h.startIndex],
       endIndex: indexes[h.endIndex],
     })),
 
-    polygons: Object.values(rawGraphic.polygons ?? {}).map((p) => ({
+    polygons: Object.values(rawGraphic.polygons ?? {}).map(p => ({
       ...p,
-      points: p.points.map((pt) => ({
+      points: p.points.map(pt => ({
         ...pt,
         index: indexes[pt.index],
       })),
     })),
 
-    horizHists: Object.values(rawGraphic.hhists ?? {}).map((h) => ({
+    horizHists: Object.values(rawGraphic.hhists ?? {}).map(h => ({
       ...h,
       firstBarTime: indexes[h.firstBarTime],
       lastBarTime: indexes[h.lastBarTime],

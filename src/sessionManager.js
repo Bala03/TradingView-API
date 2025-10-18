@@ -30,7 +30,7 @@ class SessionManager {
     // Start authentication process
     this.isAuthenticating = true;
     this.authPromise = this.authenticate();
-    
+
     try {
       const session = await this.authPromise;
       this.currentSession = session;
@@ -51,7 +51,10 @@ class SessionManager {
       if (config.hasSession) {
         console.log('🔐 Attempting to use stored session...');
         try {
-          const user = await TradingView.getUser(config.auth.sessionId, config.auth.signature);
+          const user = await TradingView.getUser(
+            config.auth.sessionId,
+            config.auth.signature,
+          );
           console.log('✅ Stored session is valid');
           return user;
         } catch (error) {
@@ -61,7 +64,9 @@ class SessionManager {
 
       // Check if we have login credentials
       if (!config.isAuthenticated) {
-        throw new Error('No authentication credentials provided. Please set TRADINGVIEW_USERNAME and TRADINGVIEW_PASSWORD in your .env file');
+        throw new Error(
+          'No authentication credentials provided. Please set TRADINGVIEW_USERNAME and TRADINGVIEW_PASSWORD in your .env file',
+        );
       }
 
       console.log('🔐 Authenticating with TradingView...');
@@ -69,11 +74,13 @@ class SessionManager {
         config.auth.username,
         config.auth.password,
         config.auth.rememberSession,
-        config.auth.userAgent
+        config.auth.userAgent,
       );
 
       console.log('✅ Authentication successful');
-      console.log(`👤 User: ${user.username} (${user.firstName} ${user.lastName})`);
+      console.log(
+        `👤 User: ${user.username} (${user.firstName} ${user.lastName})`,
+      );
       console.log(`🆔 Session ID: ${user.session}`);
       console.log(`🔑 Signature: ${user.signature}`);
 
@@ -93,7 +100,7 @@ class SessionManager {
    */
   isSessionValid() {
     if (!this.currentSession) return false;
-    
+
     // Basic validation - could be enhanced with actual session validation
     return !!(this.currentSession.session && this.currentSession.signature);
   }
@@ -116,21 +123,21 @@ class SessionManager {
     if (!this.currentSession) {
       throw new Error('No active session. Call getSession() first');
     }
-    
+
     return `sessionid=${this.currentSession.session};sessionid_sign=${this.currentSession.signature}`;
   }
 
   /**
    * Update environment session variables
-   * @param {string} sessionId 
-   * @param {string} signature 
+   * @param {string} sessionId
+   * @param {string} signature
    */
   updateEnvironmentSession(sessionId, signature) {
     // Note: This updates the current process environment
     // For persistent changes, you'd need to write to .env file
     process.env.TRADINGVIEW_SESSION_ID = sessionId;
     process.env.TRADINGVIEW_SIGNATURE = signature;
-    
+
     console.log('💾 Session credentials updated in environment');
   }
 
@@ -156,8 +163,24 @@ class SessionManager {
       username: this.currentSession.username,
       sessionId: this.currentSession.session,
       signature: this.currentSession.signature,
-      userId: this.currentSession.id
+      userId: this.currentSession.id,
     };
+  }
+
+  /**
+   * Restore session after WebSocket reconnection
+   * @returns {Promise<Object>} Session information or null if no session available
+   */
+  async restoreSession() {
+    if (this.currentSession && this.isSessionValid()) {
+      console.log('🔄 Restoring existing session after reconnection...');
+      return this.currentSession;
+    }
+
+    console.log(
+      '🔄 No valid session to restore, attempting re-authentication...',
+    );
+    return this.getSession();
   }
 }
 

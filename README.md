@@ -37,6 +37,29 @@ Join the Telegram group of the TradingView-API Community: [t.me/tradingview_api]
 - [ ] Get Calendar
 - IF YOU WANT A FEATURE, ASK ME !
 
+## Auto-Reconnect Feature
+
+The client now includes automatic WebSocket reconnection with exponential backoff:
+
+```javascript
+const client = new TradingView.Client({
+  autoReconnect: true, // Enable auto-reconnect (default: true)
+  maxRetries: 10, // Maximum reconnection attempts (default: 10)
+  initialDelay: 1000, // Initial delay in ms (default: 1000)
+  maxDelay: 30000, // Maximum delay in ms (default: 30000)
+  backoffMultiplier: 2, // Backoff multiplier (default: 2)
+});
+
+// Listen to reconnection events
+client.onConnected(() => {
+  console.log('Connected to TradingView');
+});
+
+client.onDisconnected(() => {
+  console.log('Disconnected from TradingView');
+});
+```
+
 ## Possibilities
 
 - Trading bot
@@ -45,7 +68,7 @@ Join the Telegram group of the TradingView-API Community: [t.me/tradingview_api]
 - Machine Learning based indicator
 - Free replay mode for all timeframes
 
-___
+---
 
 ## Installation
 
@@ -61,6 +84,64 @@ Last version:
 npm i github:Mathieu2301/TradingView-API
 ```
 
+## Available Scripts
+
+```bash
+# Install dependencies
+npm install
+
+# Run linting (auto-fixes issues)
+npm run lint
+
+# Check linting without fixing
+npm run lint:check
+
+# Format code with Prettier
+npm run format
+
+# Check code formatting
+npm run format:check
+
+# Run all tests
+npm test
+
+# Run unit tests only
+npm run test:unit
+
+# Run tests in CI mode
+npm run test:ci
+
+# Run example (requires .env file with credentials)
+npm run example
+
+# Run streamlined example in development mode
+npm run example:dev
+
+# Setup environment file
+npm run setup
+```
+
+## Testing
+
+The project includes comprehensive unit tests for core components:
+
+```bash
+# Run all tests
+npm test
+
+# Run only unit tests (helpers and utilities)
+npm run test:unit
+
+# Run tests in CI mode with verbose output
+npm run test:ci
+```
+
+Test coverage includes:
+
+- Utility functions (session ID generation, authentication cookies)
+- Helper functions (chart creation, market data formatting, retry logic)
+- Auto-reconnect functionality with WebSocket mocking
+
 ## Examples
 
 You can find all the examples and snippets in `./examples` folder.
@@ -68,9 +149,10 @@ You can find all the examples and snippets in `./examples` folder.
 ## Before opening an issue
 
 Please look at examples and previously resolved issues before opening a new one. I can't help everyone (especially for questions that are not library related but JavaScript related). Thank you for your understanding.
-___
+
+---
 
 ## Problems
 
- If you have errors in console or unwanted behavior,
- please create an issue [here](https://github.com/Mathieu2301/Tradingview-API/issues).
+If you have errors in console or unwanted behavior,
+please create an issue [here](https://github.com/Mathieu2301/Tradingview-API/issues).
